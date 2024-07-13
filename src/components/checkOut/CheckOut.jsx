@@ -46,7 +46,7 @@ const CheckOut = () => {
                         <br /><textarea className=' border-gray-400 h-36 w-[600px] no-focus-outline p-2 font-bc text-xl rounded-xl' placeholder='Enter Full Address' name="address" id="" ></textarea>
                         <br /><textarea className='h-20 w-[600px] no-focus-outline mt-2 p-2 font-bc text-xl rounded-xl' placeholder='Any Message (Optional)' name="address" id=""></textarea>
                        
-                        <div className='p-3 border-2 rounded-xl w-[600px] mt-8'>
+                      <div className='p-3 border-2 rounded-xl w-[600px] mt-8'>
                             <p className='font-bc text-xl text-gray-500 text-left ml-5 mb-5'>Choose From</p>
                             <div className='flex items-center justify-center'>
                                 <input type="radio" name="option" value='doorStep' id="" /> 

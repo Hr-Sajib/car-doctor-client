@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { key } from 'localforage';
 import React, { useEffect, useState } from 'react';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,16 +6,24 @@ import { AuthContext } from '../authProvider/AuthProvider';
 
 const Services = () => {
     const [services, setServices] = useState([]);
-    const {cart, setCart} = useContext(AuthContext)
+    const {cart, setCart} = useContext(AuthContext);
+    const [cartItems, setCartItems] = useState([]);
+
+    console.log(cart)
+
     const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('http://localhost:5500/getServices')
             .then(d => {
                 setServices(d.data);
-                console.log(d.data)
             });
     }, []);
+
+    useEffect(()=>{
+        const cart = JSON.parse(localStorage.getItem('cartIds'));
+        cart && setCartItems(cart);
+    },[])
 
 
 
@@ -25,6 +32,24 @@ const Services = () => {
         btn.innerText= 'Added';
         btn.classList.remove('bg-black')
         btn.classList.add('bg-gray-500')
+
+        const cartIds = JSON.parse(localStorage.getItem('cartIds'));
+
+
+        if(cartIds){
+            if(!cartIds.includes(service._id)){
+
+                cartIds && cartIds.push(service._id);
+                localStorage.setItem('cartIds',JSON.stringify(cartIds));
+            }
+        }
+
+        else{
+
+            const newcart = [service._id];
+            localStorage.setItem('cartIds',JSON.stringify(newcart));
+        }
+
 
 
         const serviceExists = cart.some(item => item._id === service._id);
@@ -40,11 +65,11 @@ const Services = () => {
     }
 
     return (
-        <div className='flex mb-10 justify-between'>
+        <div className='flex mb-10 '>
             <div className=''>
                 <div className=' mt-2'>
-                    <p className="text-3xl font-bc text-red-700">Our Service Areas</p>
-                    <p className='font-bc text-xl'>
+                    <p className="text-3xl font-bc text-red-800">Our Service Areas</p>
+                    <p className='font-bc text-xl text-gray-700'>
                         At Car Doctor, we serve the entire metro area with expert car repair services.
                         Our skilled technicians ensure your vehicle runs smoothly and safely,
                         providing top-notch care for all your automotive needs.
@@ -53,28 +78,30 @@ const Services = () => {
             
                 <div className='flex justify-center my-10'>
                     <div className='grid grid-cols-3  gap-3'>
-                        {services.map(service => <Service service={service} key={service._id} handleAddCart={handleAddCart} />)}
+                        {services.map(service => <Service service={service} key={service._id} handleAddCart={handleAddCart} cartItems={cartItems} />)}
                     </div>
                 </div>
             </div>
-            <div className='bg-red-50 mt-[110px] w-[350px] min-h-[100px] mb-10 p-3 rounded-xl'>
-                <p className='text-xl text-center font-bc-medium'>My Cart</p>
-                <p>_______________________________________</p>
-                {
-                    cart.map((item,index) =>
+            <div className=' ml-5'>
+                <div className='fixed bg-red-50 mt-[110px] w-[350px] min-h-[550px] mb-10 p-3 rounded-xl'>
+                    <p className='text-xl text-center font-bc-medium'>My Cart</p>
+                    <p>_______________________________________</p>
+                    {
+                        cart.map((item,index) =>
 
-                    <div key={item._id} className=' flex font-bc justify-between text-xl' >
-                        <p className=' w-3'>{index+1}</p>
-                        <p className=' w-[180px]'>{item.title}</p>
-                        <p className=' w-16'>${item.price}</p>
+                        <div key={item._id} className=' flex font-bc justify-between text-xl' >
+                            <p className=' w-3'>{index+1}</p>
+                            <p className=' w-[180px]'>{item.title}</p>
+                            <p className=' w-16'>${item.price}</p>
 
+                        </div>
+                    )
+                    }
+                    <div>
+                        <button onClick={()=>navigate('/checkout')} className='bg-black text-red-200 px-5 py-2 rounded-lg mt-5'>Check Out</button>
                     </div>
-                )
-                }
-                <div>
-                    <button onClick={()=>navigate('/checkout')} className='bg-black text-red-200 px-5 py-2 rounded-lg mt-5'>Check Out</button>
+                    
                 </div>
-                
             </div>
         </div>
     );
@@ -82,7 +109,7 @@ const Services = () => {
 
 export default Services;
 
-const Service = ({ service, handleAddCart }) => {
+const Service = ({ service, handleAddCart,cartItems }) => {
 
 
     return (
@@ -93,7 +120,12 @@ const Service = ({ service, handleAddCart }) => {
             <div className='flex justify-between items-center pr-2'>
                 <p className='text-2xl font-bc-medium ml-1 my-2 text-red-800'>${service.price}</p>
                 <div className='arrow-wrapper h-10 rounded-full'>
-                    <button id={`addBtn${service._id}`} onClick={()=>handleAddCart(service)} className='addBtn bg-black text-gray-100 hover:bg-red-900 p-1 px-5 rounded-md font-bc text-xl'>Add To Cart <span className='arrow'>➔</span></button>
+                    {
+                        cartItems && cartItems.includes(service._id) ?
+                        <button id={`addBtn${service._id}`} onClick={()=>handleAddCart(service)} className='addBtn bg-gray-500 text-white hover:bg-red-900  p-1 px-5 rounded-md font-bc text-xl'>Added</button>
+                        :
+                        <button id={`addBtn${service._id}`} onClick={()=>handleAddCart(service)} className='addBtn bg-black text-gray-100 hover:bg-red-900 p-1 px-5 rounded-md font-bc text-xl'>Add To Cart <span className='arrow'>➔</span></button>
+                    }
                 </div>
             </div>
         </div>
