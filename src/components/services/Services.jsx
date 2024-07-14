@@ -6,23 +6,24 @@ import { AuthContext } from '../authProvider/AuthProvider';
 
 const Services = () => {
     const [services, setServices] = useState([]);
-    const {cart, setCart} = useContext(AuthContext);
-    const [cartItems, setCartItems] = useState([]);
 
-    console.log(cart)
-
-    const navigate = useNavigate();
 
     useEffect(() => {
         axios.get('http://localhost:5500/getServices')
             .then(d => {
                 setServices(d.data);
             });
-    }, []);
+    }, []);    
+    
+    const [cartItems, setCartItems] = useState([]);
+
+    const navigate = useNavigate();
+
+
 
     useEffect(()=>{
-        const cart = JSON.parse(localStorage.getItem('cartIds'));
-        cart && setCartItems(cart);
+        const cartLS = JSON.parse(localStorage.getItem('cartLS'));
+        cartLS && setCartItems(cartLS);
     },[])
 
 
@@ -33,26 +34,25 @@ const Services = () => {
         btn.classList.remove('bg-black')
         btn.classList.add('bg-gray-500')
 
-        const cartIds = JSON.parse(localStorage.getItem('cartIds'));
+        const cartLS = JSON.parse(localStorage.getItem('cartLS'));
 
 
-        if(cartIds){
-            if(!cartIds.includes(service._id)){
+        if(cartLS){
+            if(!cartLS.includes(service)){
 
-                cartIds && cartIds.push(service._id);
-                localStorage.setItem('cartIds',JSON.stringify(cartIds));
+                cartLS.push(service);
+                localStorage.setItem('cartLS',JSON.stringify(cartLS));
             }
         }
 
         else{
 
-            const newcart = [service._id];
-            localStorage.setItem('cartIds',JSON.stringify(newcart));
+            const newcart = [service];
+            localStorage.setItem('cartLS',JSON.stringify(newcart));
         }
 
 
-
-        const serviceExists = cart.some(item => item._id === service._id);
+        const serviceExists = cartItems.some(item => item._id === service._id);
         if(serviceExists){
             return
         }
@@ -83,11 +83,11 @@ const Services = () => {
                 </div>
             </div>
             <div className=' ml-5'>
-                <div className='fixed bg-red-50 mt-[110px] w-[350px] min-h-[550px] mb-10 p-3 rounded-xl'>
+                <div className='fixed bg-red-50 mt-[110px] w-[350px]  mb-10 p-3 rounded-xl'>
                     <p className='text-xl text-center font-bc-medium'>My Cart</p>
                     <p>_______________________________________</p>
                     {
-                        cart.map((item,index) =>
+                        cartItems.map((item,index) =>
 
                         <div key={item._id} className=' flex font-bc justify-between text-xl' >
                             <p className=' w-3'>{index+1}</p>

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { createUserWithEmailAndPassword, GoogleAuthProvider, onAuthStateChanged, signInWithEmailAndPassword, signInWithPopup, signOut, updateProfile } from "firebase/auth";
 import { useEffect, useState } from "react";
 import { Children, createContext } from "react";
@@ -10,7 +11,7 @@ const AuthProvider = ({children}) => {
 
     const [user, setUser]= useState(null);
     const [loader, setLoader] = useState(true);
-    const [cart, setCart] = useState([]);
+
 
 
     //google sign in
@@ -63,20 +64,15 @@ const AuthProvider = ({children}) => {
     },[])
 
 
-
     const authInfo = {
         createUser,
         googleSignIn,
         loginUser,
         logOut,
         user,
-        cart,
-        setCart,
         
     }
 
-
-    // console.log(user)
 
     return (
         <AuthContext.Provider value={authInfo}>

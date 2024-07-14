@@ -1,15 +1,26 @@
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useState } from 'react';
 import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../authProvider/AuthProvider';
 
 const CheckOut = () => {
+    const [cartItems, setCartItems] = useState([]);
 
-    const {cart} = useContext(AuthContext);
+
+    useEffect(()=>{
+        const cartLS = JSON.parse(localStorage.getItem('cartLS'));
+        cartLS && setCartItems(cartLS);
+    },[])
+    
+    
+    
+    const [showPay, setShowPay] = useState(false)
     const navigate = useNavigate();
     
-    const total = cart.reduce((sum, item)=> sum+parseFloat(item.price) , 0)
-    console.log(total)
+    const total = cartItems.reduce((sum, item)=> sum+parseFloat(item.price) , 0)
+
+
     return (
         <div className='mx-20 flex'>
             
@@ -17,7 +28,7 @@ const CheckOut = () => {
                 <div>
                     <button onClick={()=>navigate(-1)} className='text-3xl text-red-700 mb-5'>←</button>
                     {
-                        cart.map((item,index) =>
+                        cartItems.map((item,index) =>
 
                         <div key={item._id} className=' flex font-bc  text-3xl' >
                             <p className=' w-10'>{index+1}</p>
@@ -34,10 +45,14 @@ const CheckOut = () => {
                 </div>
 
                 <div className='w-[580px] flex justify-end mt-10'>
-                    <button className='bg-red-900 text-white font-bc text-2xl rounded-md p-2 hover:bg-red-700'>Proceed To Pay</button>
+                    {
+                        !setShowPay && <button onClick={()=>setShowPay(true)} className='bg-red-900 text-white font-bc text-2xl rounded-md p-2 hover:bg-red-700'>Proceed To Pay</button>
+                    }
                 </div>
             </div>
-            <div className='w-[700px] rounded-2xl p-5 ml-16 bg-gray-100'>
+
+            {
+            showPay && <div className='w-[700px] rounded-2xl p-5 ml-16 bg-gray-100'>
                 <p className='text-center text-2xl mb-5 font-bc'>Provide Information To Finilize</p>
                     <form className='flex flex-col items-center text-center' action="">
                         <input className=' rounded-lg border-gray-400 no-focus-outline w-[600px] h-10 mb-5 text-xl font-bc p-1 pl-2' type="text" name="name" placeholder='Enter Your Name' id="" required />
@@ -65,6 +80,7 @@ const CheckOut = () => {
                         </div>
                     </form>
             </div>
+            }
         </div>
     );
 };
